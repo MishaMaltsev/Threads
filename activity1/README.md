@@ -46,12 +46,14 @@ Base Code, please use the following commands:
 
 ## Program Functionality
 ### Task 1
-pop, display, count, and switch working as asked for in the requirements
+pop, display, count, and switch working as asked for in the requirements. Run it using the initial recommended way or by running "gradle runTask1" for the server and "gradle runClient" for the client on a local machine.
 
 ### Task 2
-ThreadedServer works between different threads.
+ThreadedServer works between different threads. Run it the same as mentioned above, but use "gradle runTask2" instead
+
+
 
 ### Task 3
-ThreadPoolServer will try to limit count but full functionality is not there. it does keep track of the number of threads that have connected, but does not keep track of if one quits, another can be started.
+ThreadPoolServer will try to limit count but full functionality is not there. it does keep track of the number of threads that have connected, but does not keep track of if one quits, another can be started. Run it the same as the previous with "gradle runTask3" for a default pool of 1. Add pool=(max num of threads) with "gradle runTask3" to choose how many threads are wanted. Full implementation currently does not work unfortunately.
 
 
