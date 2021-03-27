@@ -121,6 +121,7 @@ public class Client {
         JSONObject request = new JSONObject();
         request.put("selected", 0);
         request.put("data", ".");
+        
         return request;
     }
 
@@ -158,7 +159,7 @@ public class Client {
                 System.out.println("Client Menu");
                 System.out.println("Please select a valid option (1-5). 0 to diconnect the client");
                 System.out.println("1. add <string> - adds a string to the list and display it");
-                System.out.println("2. pop - remove the top elemnt");
+                System.out.println("2. pop - remove the top element");
                 System.out.println("3. display - display the list");
                 System.out.println("4. count - returns the elements in the list");
                 System.out.println("5. switch <int> <int> - switch two string");

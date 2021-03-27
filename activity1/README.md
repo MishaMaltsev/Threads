@@ -33,10 +33,25 @@ Should give good error message if something goes wrong
 Base Code, please use the following commands:
 ```
     For Server, run "gradle runServer -Pport=9099 -q --console=plain"
+    or
+    "gradle runTask1"
+    "gradle runTask2"
+    "gradle runTask3"
 ```
 ```   
     For Client, run "gradle runClient -Phost=localhost -Pport=9099 -q --console=plain"
+    or
+    "gradle runClient"
 ```   
 
+## Program Functionality
+### Task 1
+pop, display, count, and switch working as asked for in the requirements
+
+### Task 2
+ThreadedServer works between different threads.
+
+### Task 3
+ThreadPoolServer will try to limit count but full functionality is not there. it does keep track of the number of threads that have connected, but does not keep track of if one quits, another can be started.
 
 

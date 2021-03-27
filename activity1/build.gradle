@@ -11,7 +11,13 @@ dependencies {
 //define main class
 mainClassName = 'Concentration'
 
-task runServer(type: JavaExec) {
+//define the default port and host
+def host = 'localhost'
+def port = 8000
+
+
+//task 1
+task runTask1(type: JavaExec) {
   group 'server'
   description 'Creates Server socket waits for messages'
 
@@ -23,6 +29,43 @@ task runServer(type: JavaExec) {
   // run with arguments e.g.: gradle runServer -Pport=9099 -q --console=plain
   if (project.hasProperty('port')) {
     args(project.getProperty('port'));
+  } else {
+    args(port);
+  }
+}
+
+//task 2
+task runTask2(type: JavaExec) {
+  group 'server'
+  description 'creates threaded server waits for messages'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'taskone.ThreadedServer'
+  standardInput = System.in
+  
+  if (project.hasProperty('port')) {
+    args(project.getProperty('port'));
+  } else {
+    args(port);
+  }
+}
+
+def pool = 1
+//task 3
+task runTask3(type: JavaExec) {
+  group 'server'
+  description 'threaded server with set pool num of connections'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'taskone.ThreadPoolServer'
+  standardInput = System.in
+  
+  if(project.hasProperty('port') && project.hasProperty('pool')) {
+    args(project.getProperty('port'), project.getProperty('pool'));
+  } else {
+    args(port, pool);
   }
 }
 
@@ -39,6 +82,8 @@ task runClient(type: JavaExec) {
   // run with arguments e.g.: gradle runClient -Phost=localhost -Pport=9099 -q --console=plain
   if (project.hasProperty("host") && project.hasProperty('port')) {
     args(project.getProperty('host'), project.getProperty('port'));
+  } else {
+    args(host, port);
   }
 }
 
