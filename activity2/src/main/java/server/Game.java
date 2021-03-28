@@ -101,6 +101,8 @@ public class Game {
             setIdxMax(col * row);
         }
         else {
+            //TODO: implement
+            System.out.println("A game has been requested");
         }
     }
 

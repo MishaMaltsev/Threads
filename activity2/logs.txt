@@ -1,0 +1,19 @@
+
+3Sat Mar 27 17:20:27 MST 2021: New Server! - CONNECT
+8Sat Mar 27 17:26:50 MST 2021: Second New Name! - CONNECT
+2Sat Mar 27 18:20:09 MST 2021: third name - CONNECT
+3Sat Mar 27 18:46:05 MST 2021: test name 4 - CONNECT
+:Sat Mar 27 19:55:02 MST 2021: another test round - CONNECT
+-Sat Mar 27 20:01:41 MST 2021: misha - CONNECT
+/Sat Mar 27 20:10:08 MST 2021: [Dname - CONNECT
+,Sat Mar 27 20:10:43 MST 2021: name - CONNECT
+.Sat Mar 27 20:17:02 MST 2021: server - CONNECT
+(Sat Mar 27 20:24:00 MST 2021:  - CONNECT
+,Sat Mar 27 21:41:16 MST 2021: [A1 - CONNECT
+)Sat Mar 27 21:42:38 MST 2021: 3 - CONNECT
+,Sat Mar 27 21:44:51 MST 2021: name - CONNECT
+/Sat Mar 27 21:50:54 MST 2021: newname - CONNECT
+-Sat Mar 27 22:50:31 MST 2021: misha - CONNECT
+/Sat Mar 27 23:12:22 MST 2021: Jhonson - CONNECT
+8Sat Mar 27 23:12:54 MST 2021: this is the name - CONNECT
+-Sat Mar 27 23:13:05 MST 2021: hello - CONNECT

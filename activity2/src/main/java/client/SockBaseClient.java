@@ -7,6 +7,7 @@ import org.json.*;
 
 import buffers.RequestProtos.Request;
 import buffers.ResponseProtos.Response;
+//import jdk.jfr.internal.RequestEngine;
 import buffers.ResponseProtos.Entry;
 
 import java.util.*;
@@ -35,7 +36,7 @@ class SockBaseClient {
         }
 
         // Ask user for username
-        System.out.println("Please provide your name for the server. ( ͡❛ ͜ʖ ͡❛)");
+        System.out.println("Please provide your name for the server.");
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         String strToSend = stdin.readLine();
 
@@ -58,7 +59,53 @@ class SockBaseClient {
             response = Response.parseDelimitedFrom(in);
 
             // print the server response. 
-            System.out.println(response.getGreeting());
+            System.out.println(response.getGreeting()); 
+
+            //greeting recieved, get user input
+            boolean notQuit = true;
+
+            //while loop to do operations
+            while(notQuit) {
+                String userStartInput = stdin.readLine();
+                try {
+                    int selectedUserNum = Integer.parseInt(userStartInput);
+                    
+                    //if 3 selected, quit
+                    switch(selectedUserNum) {
+                        case(1): //shows leaderboard
+                            op = Request.newBuilder()
+                                .setOperationType(Request.OperationType.LEADER).build();
+                            break;
+                        case(2): //starts game
+                            op = Request.newBuilder()
+                                .setOperationType(Request.OperationType.NEW).build();
+                            break;
+                        case(3): //quits
+                            op = Request.newBuilder()
+                                .setOperationType(Request.OperationType.QUIT).build();
+                            notQuit = false;
+                            break;
+                        default:
+                            System.out.println("Invalid integer, please enter 1, 2, or 3.");
+                            continue;
+                    }
+                    //send the request
+                    op.writeDelimitedTo(out);
+                    
+                    //read from the server
+                    response = Response.parseDelimitedFrom(in);
+
+                    //print server response
+                    System.out.println(response.getGreeting());
+                    
+                        
+                    
+
+                } catch (NumberFormatException nfe) {
+                    System.out.println("Invalid Input, please enter 1, 2, or 3");
+                }
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,6 +115,10 @@ class SockBaseClient {
             if (serverSock != null) serverSock.close();
         }
     }
+
+
+
+
 }
 
 

@@ -3,6 +3,9 @@ package server;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+
+import javax.swing.SingleSelectionModel;
+
 import org.json.*;
 import java.lang.*;
 
@@ -21,6 +24,11 @@ class SockBaseServer {
     Socket clientSocket = null;
     int port = 9099; // default port
     Game game;
+
+    //move leaderboard to global
+    // Creating Entry and Leader response
+    Response.Builder res = Response.newBuilder()
+        .setResponseType(Response.ResponseType.LEADER);
 
 
     public SockBaseServer(Socket sock, Game game){
@@ -42,71 +50,137 @@ class SockBaseServer {
 
 
         System.out.println("Ready...");
+        
         try {
             // read the proto object and put into new objct
             Request op = Request.parseDelimitedFrom(in);
             String result = null;
 
-            
+            boolean repeatedProcess = false, serverRunning = true;
 
-            // if the operation is NAME (so the beginning then say there is a commention and greet the client)
-            if (op.getOperationType() == Request.OperationType.NAME) {
-                // get name from proto object
-            name = op.getName();
+            while(serverRunning) {
+                // if the operation is NAME (so the beginning then say there is a commention and greet the client)
+                if (op.getOperationType() == Request.OperationType.NAME && !repeatedProcess) {
+                    // get name from proto object
+                    name = op.getName();
 
-            // writing a connect message to the log with name and CONNENCT
-            writeToLog(name, Message.CONNECT);
-                System.out.println("Got a connection and a name: " + name);
-                Response response = Response.newBuilder()
+                // writing a connect message to the log with name and CONNENCT
+                writeToLog(name, Message.CONNECT);
+                    System.out.println("Got a connection and a name: " + name);
+                    Response response = Response.newBuilder()
+                            .setResponseType(Response.ResponseType.GREETING)
+                            .setGreeting("Hello " + name + " and welcome. \nWhat would you like to do? \n 1 - Display the Leaderboard \n 2 - Enter a Game \n 3 - quit")
+                            .build();
+                    response.writeDelimitedTo(out);
+                    repeatedProcess = true;
+                } else {
+                    System.out.println(name + " completed a round, repeating...");
+                    Response response = Response.newBuilder()
                         .setResponseType(Response.ResponseType.GREETING)
-                        .setGreeting("Hello " + name + " and welcome. \nWhat would you like to do? \n 1 - to see the leader board \n 2 - to enter a game")
+                        .setGreeting("Completed! What would you like to do now?\n \n 1 - Display the LeaderBoard \n 2 - Enter a Game \n 3 - quit")
                         .build();
-                response.writeDelimitedTo(out);
+                    response.writeDelimitedTo(out);
+                }
+
+                //now must read in what the client sends
+                op = Request.parseDelimitedFrom(in);
+
+                //if leaderboards
+                if (op.getOperationType() == Request.OperationType.LEADER) {
+                    String leaderBoardString = getLeaderBoard();
+                    Response response = Response.newBuilder()
+                        .setResponseType(Response.ResponseType.LEADER)
+                        .setGreeting("Displaying Leaderboard...\n" + leaderBoardString) //TODO: display leaderboard
+                        .build();
+                    response.writeDelimitedTo(out);
+                    Response leaderBoard = res.build();
+                    leaderBoard.writeDelimitedTo(out);
+
+                    for (Entry lead: leaderBoard.getLeaderList()){
+                        System.out.println(lead.getName() + ": " + lead.getWins());
+                    }
+
+                    System.out.println("Task: Displayed Leaderboard");
+
+                    //else if play game
+                } else if (op.getOperationType() == Request.OperationType.NEW) {
+                    System.out.println("Task: Started a Game for " +name);
+                    game.newGame();
+                    //TODO: implement playing game
+                    //record the game into the leaderboards
+                    Entry leader = Entry.newBuilder()
+                        .setName(name)
+                        .setWins(0)
+                        //.setLogins(0)
+                        .build();
+                    res.addLeader(leader);
+                    //else if quit
+                } else if (op.getOperationType() == Request.OperationType.QUIT) {
+                    //serverRunning = false; for testing purposes
+                    System.out.println("The user " +name +"has quit.");
+
+                }
             }
+
+
+        //switch statement led to errors
+            // switch (op.getOperationType()) {
+            //     case(LEADER): //show leaderboards
+            //         Response response = Response.newBuilder()
+            //             .setResponseType(Response.ResponseType.LEADER)
+            //             .setGreeting("Displaying Leaderboard...\n")
+            //             .build();
+            //         response.writeDelimitedTo(out);
+
+            //         break;
+            //     case(NEW): //start a new game
+            //         game.newGame();
+            //         break;
+            //     case(QUIT): //quit the server
+            //         break;
+            // }
 
             // Example how to start a new game and how to build a response with the image which you could then send to the server
             // LINE 67-108 are just an example for Protobuf and how to work with the differnt types. They DO NOT
             // belong into this code. 
-            game.newGame(); // starting a new game
+            // game.newGame(); // starting a new game
 
             // adding the String of the game to 
-            Response response2 = Response.newBuilder()
-                .setResponseType(Response.ResponseType.TASK)
-                .setImage(game.getImage())
-                .setTask("Great task goes here")
-                .build();
+            // Response response2 = Response.newBuilder()
+            //     .setResponseType(Response.ResponseType.TASK)
+            //     .setImage(game.getImage())
+            //     .setTask("Great task goes here")
+            //     .build();
 
-            // On the client side you would receive a Response object which is the same as the one in line 70, so now you could read the fields
-            System.out.println("Task: " + response2.getResponseType());
-            System.out.println("Image: \n" + response2.getImage());
-            System.out.println("Task: \n" + response2.getTask());
+            // // On the client side you would receive a Response object which is the same as the one in line 70, so now you could read the fields
+            // System.out.println("Task: " + response2.getResponseType());
+            // System.out.println("Image: \n" + response2.getImage());
+            // System.out.println("Task: \n" + response2.getTask());
 
-            // Creating Entry and Leader response
-            Response.Builder res = Response.newBuilder()
-                .setResponseType(Response.ResponseType.LEADER);
+            
 
             // building and Entry
-            Entry leader = Entry.newBuilder()
-                .setName("name")
-                .setWins(0)
-                .setLogins(0)
-                .build();
+            // Entry leader = Entry.newBuilder()
+            //     .setName("name")
+            //     .setWins(0)
+            //     .setLogins(0)
+            //     .build();
 
-            // building and Entry
-            Entry leader2 = Entry.newBuilder()
-                .setName("name2")
-                .setWins(1)
-                .setLogins(1)
-                .build();
+            // // building and Entry
+            // Entry leader2 = Entry.newBuilder()
+            //     .setName("name2")
+            //     .setWins(1)
+            //     .setLogins(1)
+            //     .build();
 
-            res.addLeader(leader);
-            res.addLeader(leader2);
+            // res.addLeader(leader);
+            // res.addLeader(leader2);
 
-            Response response3 = res.build();
+            // Response response3 = res.build();
 
-            for (Entry lead: response3.getLeaderList()){
-                System.out.println(lead.getName() + ": " + lead.getWins());
-            }
+            // for (Entry lead: response3.getLeaderList()){
+            //     System.out.println(lead.getName() + ": " + lead.getWins());
+            // }
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -115,6 +189,18 @@ class SockBaseServer {
             if (in != null)   in.close();
             if (clientSocket != null) clientSocket.close();
         }
+    }
+
+
+    /**
+     * returns a string of the leaderBoard formatted for user
+     * 
+     * @return
+     */
+    public String getLeaderBoard() {
+        
+        
+        return "";
     }
 
     /**
@@ -211,10 +297,23 @@ class SockBaseServer {
             System.exit(2);
         }
 
-        clientSocket = serv.accept();
-        SockBaseServer server = new SockBaseServer(clientSocket, game);
-        server.start();
+        //change so that abrupt disconnect does not stop server
+        // clientSocket = serv.accept();
+        // SockBaseServer server = new SockBaseServer(clientSocket, game);
+        // server.start();
+        
+        while(true) {
+            Socket socket = serv.accept();
+            SockBaseServer server = new SockBaseServer(socket, game);
+            server.start();
+        }
 
     }
+
+    private static Response buildRepsonse(String result) {
+        return null;
+    }
+
+
 }
 
